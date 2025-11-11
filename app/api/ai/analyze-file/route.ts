@@ -73,9 +73,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Essayer plusieurs modèles compatibles si l'un n'est pas disponible
+    // Liste ordonnée de modèles (mises à jour, essais du plus récent aux fallbacks)
     const candidateModels = [
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
       "gemini-1.5-flash-8b",
-      "gemini-1.5-flash",
       "gemini-1.5-pro",
     ] as const
 
@@ -129,7 +131,46 @@ Réponds UNIQUEMENT avec du JSON valide, sans markdown.`
     }
 
     if (!text) {
-      throw lastError ?? new Error("Aucun modèle Gemini compatible n'a répondu.")
+      // Si aucun modèle ne répond (souvent 404 Not Found), renvoyer une réponse de démonstration
+      return NextResponse.json(
+        {
+          summary:
+            "Mode démonstration: Aucun modèle Gemini compatible n'a répondu pour votre clé/région. Les exemples ci-dessous montrent le format attendu.",
+          charts: [
+            {
+              type: "bar",
+              title: "Volumes par jour (exemple)",
+              data: [
+                { name: "Lun", value: 120 },
+                { name: "Mar", value: 180 },
+                { name: "Mer", value: 90 },
+                { name: "Jeu", value: 160 },
+                { name: "Ven", value: 210 },
+              ],
+              xKey: "name",
+              yKey: "value",
+            },
+          ],
+          tables: [
+            {
+              title: "Aperçu des colonnes (exemple)",
+              headers: ["Colonne", "Type", "Valeurs manquantes"],
+              rows: [
+                ["timestamp", "datetime", "0"],
+                ["bacterialCount", "number", "2"],
+                ["viralLoad", "number", "0"],
+              ],
+            },
+          ],
+          insights: [
+            "Configurez GEMINI_API_KEY et assurez-vous que votre compte a accès à un modèle supporté.",
+            "Essayez un autre modèle (gemini-2.0-flash ou gemini-2.5-flash).",
+          ],
+          modelTried: candidateModels,
+          lastError: lastError instanceof Error ? lastError.message : "Unknown error",
+        },
+        { status: 200 }
+      )
     }
 
     // Extraire le JSON de la réponse

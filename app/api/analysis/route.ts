@@ -61,11 +61,11 @@ export async function POST(request: NextRequest) {
     const location = readings[0]?.sensor?.location || "Unknown"
     const sensorReadings = readings.map((r) => ({
       timestamp: r.timestamp.toISOString(),
-      bacterialCount: r.bacterialCount,
-      viralLoad: r.viralLoad,
-      ph: r.ph,
-      temperature: r.temperature,
-      turbidity: r.turbidity,
+      bacterialCount: r.bacterialCount ?? undefined,
+      viralLoad: r.viralLoad ?? undefined,
+      ph: r.ph ?? undefined,
+      temperature: r.temperature ?? undefined,
+      turbidity: r.turbidity ?? undefined,
     }))
 
     // Analyser avec Gemini
@@ -125,4 +125,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

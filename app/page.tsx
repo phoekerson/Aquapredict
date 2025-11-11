@@ -24,6 +24,8 @@ import {
 import { AIAnalysisTab } from "@/components/ai/ai-analysis-tab"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LayoutDashboard, Brain } from "lucide-react"
+import { Hero } from "@/components/landing/Hero"
+import { Features } from "@/components/landing/Features"
 
 export default function Home() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -149,26 +151,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight mb-2">
-                AquaPredict
-              </h1>
-              <p className="text-muted-foreground">
-                Surveillance en temps réel des eaux usées pour la détection précoce
-                d&apos;épidémies
-              </p>
-            </div>
-            {useMockData && (
-              <div className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-full text-sm font-medium">
-               
-              </div>
-            )}
+      <Hero />
+      <Features />
+      <div id="dashboard" className="container mx-auto p-6 space-y-6">
+        {useMockData && (
+          <div className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-xs inline-flex">
+            Mode démonstration
           </div>
-        </div>
+        )}
 
         {/* Tabs Navigation */}
         <Tabs defaultValue="dashboard" className="w-full">

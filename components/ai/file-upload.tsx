@@ -85,11 +85,21 @@ export function FileUpload({ onFileAnalyzed }: FileUploadProps) {
         body: formData,
       })
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'analyse du fichier")
+      let data: any = {}
+      try {
+        data = await response.json()
+      } catch {
+        // ignore json parse error; we'll fallback to generic
       }
 
-      const data = await response.json()
+      if (!response.ok) {
+        const message =
+          data?.error ||
+          data?.details ||
+          "Erreur lors de l'analyse du fichier. Vérifiez le format (.xlsx, .xls, .csv) et la taille du fichier."
+        throw new Error(message)
+      }
+
       setSuccess(true)
 
       if (onFileAnalyzed) {
@@ -164,7 +174,7 @@ export function FileUpload({ onFileAnalyzed }: FileUploadProps) {
                 id="file-upload"
               />
               <label htmlFor="file-upload">
-                <Button variant="outline" aschild={true}>
+                <Button variant="outline" asChild={true}>
                   <span>Sélectionner un fichier</span>
                 </Button>
               </label>
