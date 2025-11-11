@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import * as XLSX from "xlsx"
 
+export const dynamic = 'force-dynamic'
+
 if (!process.env.GEMINI_API_KEY) {
   console.warn("GEMINI_API_KEY is not set")
 }
