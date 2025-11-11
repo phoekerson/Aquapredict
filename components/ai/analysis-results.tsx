@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { BarChart3, Table, TrendingUp, PieChart as PieChartIcon } from "lucide-react"
+import { ReactElement } from "react"
 import {
   BarChart,
   Bar,
@@ -43,6 +44,68 @@ const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1"]
 
 export function AnalysisResults({ analysis }: AnalysisResultsProps) {
   if (!analysis || (!analysis.charts && !analysis.tables && !analysis.summary)) {
+    return null
+  }
+
+  const renderChart = (chart: any) => {
+    if (chart.type === "bar") {
+      return (
+        <BarChart data={chart.data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey={chart.xKey || "name"} />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey={chart.yKey || "value"} fill="#8884d8" />
+        </BarChart>
+      )
+    }
+    
+    if (chart.type === "line") {
+      return (
+        <LineChart data={chart.data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey={chart.xKey || "name"} />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line
+            type="monotone"
+            dataKey={chart.yKey || "value"}
+            stroke="#8884d8"
+            strokeWidth={2}
+          />
+        </LineChart>
+      )
+    }
+    
+    if (chart.type === "pie") {
+      return (
+        <PieChart>
+          <Pie
+            data={chart.data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percent }) =>
+              `${name} ${(percent * 100).toFixed(0)}%`
+            }
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey={chart.dataKey || "value"}
+          >
+            {chart.data.map((entry: any, index: number) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      )
+    }
+    
     return null
   }
 
@@ -88,58 +151,7 @@ export function AnalysisResults({ analysis }: AnalysisResultsProps) {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    {chart.type === "bar" && (
-                      <BarChart data={chart.data}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey={chart.xKey || "name"} />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar
-                          dataKey={chart.yKey || "value"}
-                          fill="#8884d8"
-                        />
-                      </BarChart>
-                    )}
-                    {chart.type === "line" && (
-                      <LineChart data={chart.data}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey={chart.xKey || "name"} />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey={chart.yKey || "value"}
-                          stroke="#8884d8"
-                          strokeWidth={2}
-                        />
-                      </LineChart>
-                    )}
-                    {chart.type === "pie" && (
-                      <PieChart>
-                        <Pie
-                          data={chart.data}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) =>
-                            `${name} ${(percent * 100).toFixed(0)}%`
-                          }
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey={chart.dataKey || "value"}
-                        >
-                          {chart.data.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    )}
+                    {renderChart(chart) as ReactElement}
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
@@ -226,4 +238,3 @@ export function AnalysisResults({ analysis }: AnalysisResultsProps) {
     </div>
   )
 }
-
