@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Configuration pour le seed
+// Utiliser: npm run db:seed
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Sensor {
+  id          String   @id @default(cuid())
+  name        String
+  location    String
+  type        String   // e.g., "wastewater", "air_quality"
+  status      String   @default("active") // active, inactive, maintenance
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  readings    SensorReading[]
+  
+  @@index([location])
+  @@index([status])
+}
+
+model SensorReading {
+  id          String   @id @default(cuid())
+  sensorId    String
+  sensor      Sensor   @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  
+  timestamp   DateTime @default(now())
+  
+  // Données brutes du capteur
+  temperature Float?
+  ph          Float?
+  turbidity   Float?
+  dissolvedOxygen Float?
+  conductivity Float?
+  bacterialCount Float?
+  viralLoad   Float?
+  
+  // Métadonnées
+  metadata    String?  // JSON string pour données additionnelles
+  
+  @@index([sensorId, timestamp])
+  @@index([timestamp])
+}
+
+model Analysis {
+  id          String   @id @default(cuid())
+  
+  // Données analysées
+  startDate   DateTime
+  endDate     DateTime
+  sensorIds   String   // JSON array de sensor IDs
+  
+  // Résultats de l'analyse IA
+  riskLevel   String   // low, medium, high, critical
+  confidence  Float    // 0-1
+  summary     String   // Résumé généré par Gemini
+  predictions String?  // JSON string avec prédictions
+  
+  // Données statistiques
+  avgBacterialCount Float?
+  avgViralLoad     Float?
+  trend            String?  // increasing, decreasing, stable
+  
+  // Métadonnées
+  modelVersion     String?  // Version du modèle IA utilisé
+  processingTime   Int?     // Temps de traitement en ms
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([startDate, endDate])
+  @@index([riskLevel])
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  
+  analysisId  String?
+  sensorId    String?
+  
+  type        String   // warning, critical, info
+  severity    String   // low, medium, high, critical
+  title       String
+  message     String
+  
+  acknowledged Boolean @default(false)
+  acknowledgedAt DateTime?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([type, severity])
+  @@index([acknowledged])
+  @@index([createdAt])
+}
+
