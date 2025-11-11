@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+// Forcer le rendu dynamique pour éviter les erreurs de build
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
@@ -57,4 +60,3 @@ export async function PATCH(request: NextRequest) {
     )
   }
 }
-
